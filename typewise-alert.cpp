@@ -6,10 +6,7 @@ BreachType inferBreach(double value, double lowerLimit, double upperLimit) {
 }
 
 
-struct CoolingLimits {
-    int lowerLimit;
-    int upperLimit;
-};
+
 
 CoolingLimits getCoolingLimits(CoolingType coolingType) {
     switch(coolingType) {
