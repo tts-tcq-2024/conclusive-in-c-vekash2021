@@ -1,5 +1,9 @@
 #pragma once
 
+struct CoolingLimits {
+    int lowerLimit;
+    int upperLimit;
+};
 typedef enum {
   PASSIVE_COOLING,
   HI_ACTIVE_COOLING,
