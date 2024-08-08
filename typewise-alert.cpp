@@ -9,15 +9,17 @@ BreachType inferBreach(double value, double lowerLimit, double upperLimit) {
 
 
 CoolingLimits getCoolingLimits(CoolingType coolingType) {
-    switch(coolingType) {
-        case PASSIVE_COOLING:
-            return {0, 35};
-        case HI_ACTIVE_COOLING:
-            return {0, 45};
-        case MED_ACTIVE_COOLING:
-            return {0, 40};
-        default:
-            return {0, 0}; // Assuming there's a default behavior
+    static const std::unordered_map<CoolingType, CoolingLimits> coolingLimitsMap = {
+        {PASSIVE_COOLING, {0, 35}},
+        {HI_ACTIVE_COOLING, {0, 45}},
+        {MED_ACTIVE_COOLING, {0, 40}}
+    };
+
+    auto it = coolingLimitsMap.find(coolingType);
+    if (it != coolingLimitsMap.end()) {
+        return it->second;
+    } else {
+        return {0, 0}; // Default case
     }
 }
 
