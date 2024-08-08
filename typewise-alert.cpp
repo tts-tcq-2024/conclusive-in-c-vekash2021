@@ -1,5 +1,6 @@
 #include "typewise-alert.h"
 #include <stdio.h>
+#include <unordered_map>
 
 BreachType inferBreach(double value, double lowerLimit, double upperLimit) {
     return (value < lowerLimit) ? TOO_LOW : (value > upperLimit) ? TOO_HIGH : NORMAL;
