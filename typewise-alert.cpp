@@ -1,36 +1,34 @@
 #include "typewise-alert.h"
 #include <stdio.h>
+#include <unordered_map>
 
 BreachType inferBreach(double value, double lowerLimit, double upperLimit) {
-  if(value < lowerLimit) {
-    return TOO_LOW;
-  }
-  if(value > upperLimit) {
-    return TOO_HIGH;
-  }
-  return NORMAL;
+    return (value < lowerLimit) ? TOO_LOW : (value > upperLimit) ? TOO_HIGH : NORMAL;
 }
 
-BreachType classifyTemperatureBreach(
-    CoolingType coolingType, double temperatureInC) {
-  int lowerLimit = 0;
-  int upperLimit = 0;
-  switch(coolingType) {
-    case PASSIVE_COOLING:
-      lowerLimit = 0;
-      upperLimit = 35;
-      break;
-    case HI_ACTIVE_COOLING:
-      lowerLimit = 0;
-      upperLimit = 45;
-      break;
-    case MED_ACTIVE_COOLING:
-      lowerLimit = 0;
-      upperLimit = 40;
-      break;
-  }
-  return inferBreach(temperatureInC, lowerLimit, upperLimit);
+
+
+
+CoolingLimits getCoolingLimits(CoolingType coolingType) {
+    static const std::unordered_map<CoolingType, CoolingLimits> coolingLimitsMap = {
+        {PASSIVE_COOLING, {0, 35}},
+        {HI_ACTIVE_COOLING, {0, 45}},
+        {MED_ACTIVE_COOLING, {0, 40}}
+    };
+
+    auto it = coolingLimitsMap.find(coolingType);
+    if (it != coolingLimitsMap.end()) {
+        return it->second;
+    } else {
+        return {0, 0}; // Default case
+    }
 }
+
+BreachType classifyTemperatureBreach(CoolingType coolingType, double temperatureInC) {
+    CoolingLimits limits = getCoolingLimits(coolingType);
+    return inferBreach(temperatureInC, limits.lowerLimit, limits.upperLimit);
+}
+
 
 void checkAndAlert(
     AlertTarget alertTarget, BatteryCharacter batteryChar, double temperatureInC) {
@@ -55,17 +53,15 @@ void sendToController(BreachType breachType) {
 }
 
 void sendToEmail(BreachType breachType) {
-  const char* recepient = "a.b@c.com";
-  switch(breachType) {
-    case TOO_LOW:
-      printf("To: %s\n", recepient);
-      printf("Hi, the temperature is too low\n");
-      break;
-    case TOO_HIGH:
-      printf("To: %s\n", recepient);
-      printf("Hi, the temperature is too high\n");
-      break;
-    case NORMAL:
-      break;
-  }
+    const char* recepient = "a.b@c.com";
+    static const char* messages[] = {
+        "Hi, the temperature is too low\n",
+        "Hi, the temperature is too high\n",
+        "" // No message for NORMAL
+    };
+
+    if (breachType != NORMAL) {
+        printf("To: %s\n", recepient);
+        printf("%s", messages[breachType]);
+    }
 }
